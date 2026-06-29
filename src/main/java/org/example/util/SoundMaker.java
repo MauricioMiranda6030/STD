@@ -1,9 +1,10 @@
 package org.example.util;
 
-import javax.sound.sampled.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 
 public class SoundMaker {
     public static SoundMaker instance;
@@ -16,20 +17,23 @@ public class SoundMaker {
         return instance;
     }
 
-    public void makeSound(String src){
-        File file;
-        try{
-            file = new File(getClass().getResource(src).toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+    public void makeSound(String src) {
         try {
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
+            InputStream is = getClass().getResourceAsStream(src);
+
+            if (is == null) {
+                throw new RuntimeException("No se encontró el recurso: " + src);
+            }
+
+            AudioInputStream audioStream =
+                    AudioSystem.getAudioInputStream(new BufferedInputStream(is));
+
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            throw new RuntimeException(e);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
